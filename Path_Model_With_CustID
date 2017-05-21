@@ -1,0 +1,17 @@
+SELECT
+  CAST(hits.customDimensions.value AS STRING) as CustID,
+  CAST(visitId AS STRING) as visitID,
+  hits.hitNumber as eventNumber,
+  STRFTIME_UTC_USEC(SEC_TO_TIMESTAMP(visitStartTime+ hits.time/1000),"%Y-%m-%d %H:%M:%S") as eventTime,
+  CASE 
+    WHEN hits.eventInfo.eventCategory IS NULL THEN 'Pageview'
+    ELSE hits.eventInfo.eventCategory
+  END as eventType,
+  hits.page.pagePath as pagePath,        
+  CONCAT( trafficSource.source, '/', trafficSource.medium ) as sourceMedium
+FROM
+  (Table_date_range([80391700.ga_sessions_], DATE_ADD(CURRENT_TIMESTAMP(), -7, 'DAY'), CURRENT_TIMESTAMP()))
+WHERE 
+  hits.customDimensions.index=17
+  AND hits.customDimensions.value='1114246'
+ORDER BY hits.customDimensions.value, hits.hitNumber ASC
