@@ -1,0 +1,18 @@
+SELECT  hits.eventInfo.eventAction, count(Distinct visitId) as Addtocarts
+
+FROM (select * from (Table_date_range([80391700.ga_sessions_], DATE_ADD(CURRENT_TIMESTAMP(), -30, 'DAY'), CURRENT_TIMESTAMP())) )
+
+
+where hits.eventInfo.eventCategory = 'Ecommerce:Items Added to Cart'
+and visitid in 
+(SELECT
+    visitId
+FROM (select * from
+(Table_date_range([80391700.ga_sessions_], DATE_ADD(CURRENT_TIMESTAMP(), -30, 'DAY'), CURRENT_TIMESTAMP()))) 
+WHERE
+  hits.page.pagePath LIKE '/category/20000%')
+  
+ group by hits.eventInfo.eventAction
+ 
+order by Addtocarts desc
+LIMIT 1000
