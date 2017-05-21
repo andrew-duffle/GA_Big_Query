@@ -1,0 +1,28 @@
+SELECT fullVisitorId, hits.hitNumber,hits.type,   
+ CASE 
+    WHEN hits.eventInfo.eventCategory IS NULL THEN 'Pageview'
+    ELSE hits.eventInfo.eventCategory
+  END as eventType,
+CASE
+  WHEN REGEXP_MATCH(hits.page.pagePath,'/$|/home') IS TRUE THEN 'home'
+  WHEN REGEXP_MATCH(hits.page.pagePath,'^/category') IS TRUE THEN concat('Category-',REGEXP_EXTRACT(hits.page.pagePath,r'/\w*\/(\w*)'))
+  WHEN REGEXP_MATCH(hits.page.pagePath,'^/product') IS TRUE THEN concat('Product-',REGEXP_EXTRACT(hits.page.pagePath,r'/\w*\/(\w*)'))
+  WHEN REGEXP_MATCH(hits.page.pagePath,'^/deals') IS TRUE THEN 'deals'
+  WHEN REGEXP_MATCH(hits.page.pagePath,'^/spotprice') IS TRUE THEN concat('SpotPrice-',REGEXP_EXTRACT(hits.page.pagePath,r'/\w*\/(\w*)'))
+  WHEN REGEXP_MATCH(hits.page.pagePath,'/education|/why-buy|/how-much-should-i-buy|/what-should-i-buy|/how-to-buy-gold-and-silver|/first-time-buyer|/ira-benefits|/glossary|/commentaries|/videos|/precious-metals-guide|/new-to|/what-is|/how-can-i-buy|^/coin-grading') IS TRUE THEN 'education'
+  WHEN REGEXP_MATCH(hits.page.pagePath,'^/account') IS TRUE THEN 'account'
+  WHEN REGEXP_MATCH(hits.page.pagePath,'^/checkout') IS TRUE THEN concat('Checkout-',REGEXP_EXTRACT(hits.page.pagePath,r'/\w*\/\w*\/(\w*)'))
+  WHEN REGEXP_MATCH(hits.page.pagePath,'^/Checkout_Confirmation') IS TRUE THEN 'Checkout_Confirmation'
+  WHEN REGEXP_MATCH(hits.page.pagePath,'^/Cart') IS TRUE THEN 'View_Cart'
+  WHEN REGEXP_MATCH(hits.page.pagePath,'^/search') IS TRUE THEN 'search'
+  ELSE 'other'
+END AS pageType,
+hits.page.pagePath
+FROM [august-quest-720:80391700.ga_sessions_20161227] 
+WHERE
+  hits.type = 'PAGE'
+ --and totals.transactions >0
+  --and fullVisitorId='1038088099364626024'
+  order by fullVisitorId, hits.hitNumber
+
+  LIMIT 1000 
