@@ -1,0 +1,30 @@
+SELECT
+  fullVisitorID,
+  visitID,
+  visitNumber,
+  hits.hitNumber,
+  hits.page.pagePath,
+  hits.type,
+  hits.customDimensions.index,
+  hits.customDimensions.value,
+  STRFTIME_UTC_USEC(SEC_TO_TIMESTAMP(visitStartTime+ hits.time/1000),"%Y-%m-%d %H:%M:%S") AS eventTime,
+    CASE 
+    WHEN hits.eventInfo.eventCategory IS NULL THEN 'Pageview'
+    ELSE hits.eventInfo.eventCategory
+  END as eventType,
+  hits.page.pagePath as pagePath
+FROM
+  [august-quest-720:80391700.ga_sessions_20160815]
+WHERE
+  fullVisitorID IN (
+  SELECT
+    fullVisitorID
+  FROM
+    [august-quest-720:80391700.ga_sessions_20160815]
+  WHERE
+    hits.customDimensions.index=17
+    AND hits.customDimensions.value='1114246')
+ORDER BY
+  visitID,
+  visitNumber,
+  hits.hitNumber
